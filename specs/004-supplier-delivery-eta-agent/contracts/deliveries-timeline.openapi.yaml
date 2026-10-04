@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: AgenticInventory AI — Deliveries Timeline Extension
+  version: 0.1.0
+  description: |
+    Extension to the existing /api/v1/deliveries surface. Adds a per-delivery
+    timeline read endpoint and augments existing list/detail responses with
+    a `has_pending_review` flag and a `latest_timeline_entry` summary so the
+    Deliveries list can show ETA badges without an extra round-trip.
+
+    Only the NEW and MODIFIED paths/fields are documented here. Pre-existing
+    fields on `DeliveryResponse` continue to apply unchanged.
+servers:
+  - url: /api/v1
+
+paths:
+  /deliveries/{delivery_id}/timeline:
+    parameters:
+      - in: path
+        name: delivery_id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Read the full timeline of a delivery (append-only, chronological)
+      operationId: getDeliveryTimeline
+      parameters:
+        - in: query
+          name: since
+          description: ISO timestamp; return only entries with `occurred_at > since`
+          required: false
+          schema: { type: string, format: date-time }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+      responses:
+        '200':
+          description: Ordered list of timeline entries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [delivery_id, entries]
+                properties:
+                  delivery_id: { type: string, format: uuid }
+                  entries:
+                    type: array
+                    items: { $ref: '#/components/schemas/DeliveryTimelineEntry' }
+        '401':
+          description: Missing or invalid session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Delivery not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [detail]
+      properties:
+        detail: { type: string }
+
+    DeliveryTimelineEntry:
+      type: object
+      required:
+        - id
+        - delivery_id
+        - event_type
+        - occurred_at
+        - actor_type
+        - created_at
+      properties:
+        id: { type: string, format: uuid }
+        delivery_id: { type: string, format: uuid }
+        event_type:
+          type: string
+          enum:
+            - eta_confirmed
+            - eta_revised
+            - acknowledged
+            - at_risk
+            - delivered
+            - manual_override
+            - note
+        occurred_at: { type: string, format: date-time }
+        actor_type:
+          type: string
+          enum: [agent, admin, simulator]
+        actor_id: { type: string, nullable: true }
+        parsed_date: { type: string, format: date-time, nullable: true }
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+        supplier_excerpt:
+          type: string
+          nullable: true
+          maxLength: 1000
+        source_reply_id: { type: string, format: uuid, nullable: true }
+        source_review_id: { type: string, format: uuid, nullable: true }
+        note: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    DeliveryResponseAdditions:
+      description: |
+        Fields appended to the existing DeliveryResponse schema.
+      type: object
+      required: [has_pending_review]
+      properties:
+        has_pending_review: { type: boolean }
+        latest_timeline_entry:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DeliveryTimelineEntry'

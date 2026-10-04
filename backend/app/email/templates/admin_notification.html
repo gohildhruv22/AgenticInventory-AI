@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>{{ subject }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;-webkit-font-smoothing:antialiased;">
+{% set conf_pct = (confidence * 100) if confidence and confidence <= 1 else (confidence or 0) %}
+{% if conf_pct >= 80 %}
+  {% set band_bg = "#ecfdf5" %}{% set band_border = "#a7f3d0" %}{% set band_text = "#047857" %}{% set band_label = "High confidence" %}
+{% elif conf_pct >= 60 %}
+  {% set band_bg = "#fffbeb" %}{% set band_border = "#fde68a" %}{% set band_text = "#b45309" %}{% set band_label = "Medium confidence" %}
+{% else %}
+  {% set band_bg = "#fef2f2" %}{% set band_border = "#fecaca" %}{% set band_text = "#b91c1c" %}{% set band_label = "Low confidence — needs review" %}
+{% endif %}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:32px 16px;">
+
+<!-- Main container -->
+<table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,0.06),0 12px 28px rgba(15,23,42,0.08);">
+
+<!-- Header -->
+<tr>
+<td bgcolor="#4f46e5" style="background-color:#4f46e5;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 60%,#ec4899 100%);padding:28px 36px 24px;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="vertical-align:top;">
+      <p style="margin:0 0 4px;color:rgba(255,255,255,0.78);font-size:11px;letter-spacing:1.6px;text-transform:uppercase;font-weight:600;">Admin Notification</p>
+      <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.4px;line-height:1.25;">{{ headline or subject }}</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.86);font-size:13px;">{{ company_name }} · Procurement</p>
+    </td>
+    {% if action_required %}
+    <td align="right" style="vertical-align:top;">
+      <span style="display:inline-block;background:#ffffff;color:#b91c1c;font-size:11px;padding:7px 13px;border-radius:999px;font-weight:700;letter-spacing:0.4px;">ACTION REQUIRED</span>
+    </td>
+    {% endif %}
+  </tr>
+  </table>
+</td>
+</tr>
+
+<!-- Confidence band -->
+{% if confidence %}
+<tr>
+<td style="padding:22px 36px 6px;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:{{ band_bg }};border:1px solid {{ band_border }};border-radius:14px;">
+  <tr>
+    <td style="padding:18px 22px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td style="vertical-align:middle;">
+          <p style="margin:0;color:{{ band_text }};font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">{{ band_label }}</p>
+          <p style="margin:4px 0 0;color:{{ band_text }};font-size:13px;line-height:1.5;">Decision: <strong style="text-transform:capitalize;">{{ decision or "approve" }}</strong></p>
+        </td>
+        <td align="right" style="vertical-align:middle;">
+          <p style="margin:0;color:{{ band_text }};font-size:32px;font-weight:700;line-height:1;letter-spacing:-0.5px;">{{ "%.0f"|format(conf_pct) }}%</p>
+        </td>
+      </tr>
+      </table>
+    </td>
+  </tr>
+  </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- Rationale (LLM-generated or templated fallback) -->
+{% if rationale %}
+<tr>
+<td style="padding:18px 36px 4px;">
+  <p style="margin:0 0 10px;color:#4f46e5;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;">
+    {% if rationale_source == "llm" %}Why this decision{% else %}Summary{% endif %}
+  </p>
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+    <p style="margin:0;color:#0f172a;font-size:14.5px;line-height:1.65;">{{ rationale }}</p>
+    {% if truncated %}<p style="margin:10px 0 0;color:#64748b;font-size:12px;font-style:italic;">Truncated — full reasoning available in the app.</p>{% endif %}
+  </div>
+</td>
+</tr>
+{% elif summary %}
+<tr>
+<td style="padding:18px 36px 4px;">
+  <p style="margin:0 0 10px;color:#4f46e5;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;">Summary</p>
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;">
+    <p style="margin:0;color:#0f172a;font-size:14.5px;line-height:1.65;">{{ summary }}</p>
+  </div>
+</td>
+</tr>
+{% endif %}
+
+<!-- Order details card -->
+{% if order_id or item_name or supplier_name or total_cost %}
+<tr>
+<td style="padding:18px 36px 4px;">
+  <p style="margin:0 0 10px;color:#4f46e5;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;">Order Details</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+    {% if order_id %}
+    <tr>
+      <td style="padding:12px 18px;color:#64748b;font-size:13px;width:36%;background:#f8fafc;border-bottom:1px solid #e2e8f0;">Order ID</td>
+      <td style="padding:12px 18px;color:#0f172a;font-size:13.5px;font-weight:600;font-family:'SF Mono',Consolas,monospace;border-bottom:1px solid #e2e8f0;word-break:break-all;">{{ order_id }}</td>
+    </tr>
+    {% endif %}
+    {% if item_name %}
+    <tr>
+      <td style="padding:12px 18px;color:#64748b;font-size:13px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">Item</td>
+      <td style="padding:12px 18px;color:#0f172a;font-size:14px;font-weight:500;border-bottom:1px solid #e2e8f0;">{{ item_name }}</td>
+    </tr>
+    {% endif %}
+    {% if supplier_name %}
+    <tr>
+      <td style="padding:12px 18px;color:#64748b;font-size:13px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">Supplier</td>
+      <td style="padding:12px 18px;color:#0f172a;font-size:14px;font-weight:500;border-bottom:1px solid #e2e8f0;">{{ supplier_name }}</td>
+    </tr>
+    {% endif %}
+    {% if total_cost %}
+    <tr>
+      <td style="padding:14px 18px;color:#64748b;font-size:13px;background:#f8fafc;">Total Cost</td>
+      <td style="padding:14px 18px;color:#4f46e5;font-size:18px;font-weight:700;">${{ "%.2f"|format(total_cost) }}</td>
+    </tr>
+    {% endif %}
+  </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- Decision drivers -->
+{% if decision_drivers %}
+<tr>
+<td style="padding:18px 36px 4px;">
+  <p style="margin:0 0 10px;color:#4f46e5;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;">Decision Drivers</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+  {% for d in decision_drivers %}
+    <tr>
+      <td style="padding:0 0 8px;vertical-align:top;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:10px;">
+        <tr>
+          <td style="padding:12px 16px;">
+            <p style="margin:0;color:#64748b;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;">{{ d.label }}</p>
+            <p style="margin:4px 0 0;color:#0f172a;font-size:15px;font-weight:600;">
+              {{ d.value }}
+              {% if d.trend == "up" %}
+                <span style="display:inline-block;background:#ecfdf5;color:#047857;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;margin-left:6px;">▲ up</span>
+              {% elif d.trend == "down" %}
+                <span style="display:inline-block;background:#fef2f2;color:#b91c1c;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;margin-left:6px;">▼ down</span>
+              {% elif d.trend == "flat" %}
+                <span style="display:inline-block;background:#f1f5f9;color:#475569;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;margin-left:6px;">— flat</span>
+              {% endif %}
+            </p>
+          </td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- Alternatives considered -->
+{% if alternatives %}
+<tr>
+<td style="padding:14px 36px 4px;">
+  <p style="margin:0 0 10px;color:#4f46e5;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;">Alternatives Considered</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+  {% for a in alternatives %}
+    <tr>
+      <td style="padding:14px 16px;border-bottom:{% if not loop.last %}1px solid #f1f5f9{% else %}none{% endif %};">
+        <p style="margin:0;color:#0f172a;font-size:14px;font-weight:600;">{{ a.option }}</p>
+        {% if a.deciding_factor %}<p style="margin:4px 0 0;color:#64748b;font-size:13px;line-height:1.5;">{{ a.deciding_factor }}</p>{% endif %}
+        {% if a.score %}<p style="margin:4px 0 0;color:#94a3b8;font-size:12px;">Score: {{ a.score }}</p>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- Primary CTA -->
+<tr>
+<td style="padding:24px 36px 8px;text-align:center;">
+  {% if dashboard_url %}
+  <a href="{{ dashboard_url }}" style="display:inline-block;background-color:#4f46e5;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 60%,#ec4899 100%);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.2px;box-shadow:0 4px 14px rgba(124,58,237,0.30);">Review in App</a>
+  <p style="margin:14px 0 0;color:#64748b;font-size:13px;line-height:1.6;">You can <strong style="color:#0f172a;">approve</strong>, <strong style="color:#0f172a;">undo</strong>, or <strong style="color:#0f172a;">cancel</strong> this order from your dashboard.</p>
+  {% else %}
+  <p style="margin:14px 0 0;color:#64748b;font-size:13px;line-height:1.6;">You can <strong style="color:#0f172a;">approve</strong>, <strong style="color:#0f172a;">undo</strong>, or <strong style="color:#0f172a;">cancel</strong> this order from the {{ company_name }} dashboard.</p>
+  {% endif %}
+</td>
+</tr>
+
+<!-- Closing -->
+<tr>
+<td style="padding:14px 36px 8px;">
+  <p style="margin:0;color:#64748b;font-size:13px;line-height:1.6;text-align:center;">— {{ company_name }} Automated System</p>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:16px 36px;text-align:center;">
+  <p style="margin:0;color:#94a3b8;font-size:11.5px;">Automated notification from <strong style="color:#4f46e5;">{{ company_name }}</strong>{% if rationale_source == "fallback" %} · summary generated from raw signals{% endif %}.</p>
+</td>
+</tr>
+
+</table>
+
+<!-- Outer footer -->
+<table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;margin-top:16px;">
+<tr><td style="padding:0 8px;text-align:center;color:#94a3b8;font-size:11px;">© {{ company_name }} · Automated Procurement Platform</td></tr>
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>

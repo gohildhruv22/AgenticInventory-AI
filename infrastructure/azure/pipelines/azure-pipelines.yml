@@ -1,0 +1,120 @@
+# AgenticInventory AI — Azure build (and optional deploy) pipeline
+# Deploy stages are OFF by default. Set deployEnabled=true when service connections are configured.
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  pythonVersion: '3.11'
+  nodeVersion: '20.x'
+  deployEnabled: false
+  azureResourceGroup: 'rg-agentic-inventory-ai'
+  backendAppName: 'app-agentic-inv-api'
+  staticWebAppName: 'swa-agentic-inv'
+
+stages:
+  - stage: Build
+    displayName: Build and test
+    jobs:
+      - job: Backend
+        displayName: Backend (Python)
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+
+          - script: |
+              cd backend
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              python -m pytest -q
+            displayName: Install dependencies and run pytest
+
+          - script: |
+              cd backend
+              zip -r "$(Build.ArtifactStagingDirectory)/backend.zip" . \
+                -x ".venv/*" "__pycache__/*" "*.pyc" ".pytest_cache/*" "agenticinventory.db"
+            displayName: Package backend for App Service
+
+          - publish: $(Build.ArtifactStagingDirectory)/backend.zip
+            artifact: backend
+            displayName: Publish backend artifact
+
+      - job: Frontend
+        displayName: Frontend (Node)
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: |
+              cd frontend
+              npm ci
+              npm run test
+              npm run build
+            displayName: Install, test, and build frontend
+            env:
+              VITE_API_BASE_URL: $(VITE_API_BASE_URL)
+              VITE_WS_URL: $(VITE_WS_URL)
+
+          - publish: frontend/dist
+            artifact: frontend
+            displayName: Publish frontend dist
+
+  - stage: Deploy
+    displayName: Deploy to Azure
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['deployEnabled'], true))
+    jobs:
+      - deployment: DeployBackend
+        displayName: Deploy backend (App Service)
+        environment: production
+        pool:
+          vmImage: ubuntu-latest
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: backend
+
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: $(azureServiceConnection)
+                    appType: webAppLinux
+                    appName: $(backendAppName)
+                    package: $(Pipeline.Workspace)/backend/backend.zip
+                    runtimeStack: 'PYTHON|3.11'
+                    startUpCommand: 'python -m uvicorn app.main:app --host 0.0.0.0 --port 8000'
+
+      - deployment: DeployFrontend
+        displayName: Deploy frontend (Static Web App)
+        environment: production
+        pool:
+          vmImage: ubuntu-latest
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: frontend
+
+                - task: AzureStaticWebApp@0
+                  inputs:
+                    azure_static_web_apps_api_token: $(staticWebAppDeploymentToken)
+                    app_location: $(Pipeline.Workspace)/frontend
+                    output_location: ''
+                    skip_app_build: true

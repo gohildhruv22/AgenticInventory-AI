@@ -1,0 +1,397 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENTIC INVENTORY AI — Zepto-inspired light design system
+   ─────────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-brand-50:  #FAF5FF;
+  --color-brand-100: #F3E8FF;
+  --color-brand-500: #A855F7;
+  --color-brand-600: #7C3AED;
+  --color-brand-700: #6D28D9;
+  --color-accent-500: #EC4899;
+  --color-accent-600: #DB2777;
+
+  --color-bg-page:   #FAFBFD;
+  --color-bg-card:   #FFFFFF;
+  --color-bg-soft:   #F4F5F9;
+  --color-border:    #E8EAF0;
+
+  --color-text-primary:   #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted:     #94A3B8;
+}
+
+/* ─── Base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 1000px 700px at 15% -10%, rgba(124, 58, 237, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 900px 600px at 100% 100%, rgba(236, 72, 153, 0.05) 0%, transparent 60%),
+    var(--color-bg-page);
+}
+
+/* Scrollbar */
+* { scrollbar-width: thin; scrollbar-color: rgba(124, 58, 237, 0.25) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.20); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.40); }
+
+/* ─── Card primitives ────────────────────────────────────── */
+.card,
+.glass {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  backdrop-filter: none;
+}
+.card-hover:hover,
+.glass-hover:hover {
+  border-color: #C4B5FD;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.10), 0 12px 24px rgba(124, 58, 237, 0.06);
+}
+
+/* ─── Gradients & glows ──────────────────────────────────── */
+.gradient-primary { background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%); }
+.gradient-text {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.glow-purple { box-shadow: 0 8px 24px rgba(124, 58, 237, 0.18), 0 2px 6px rgba(124, 58, 237, 0.10); }
+.glow-pink   { box-shadow: 0 8px 24px rgba(236, 72, 153, 0.18), 0 2px 6px rgba(236, 72, 153, 0.10); }
+
+/* ═══════════════════════════════════════════════════════════════
+   Compatibility layer — re-map old dark-theme utility classes
+   to clean light-theme equivalents. This avoids touching every
+   component file while still producing a unified light UI.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Dark backgrounds → transparent (body handles it) */
+.bg-\[\#0A0A0F\],
+.bg-\[\#08080f\],
+.bg-\[\#0a0a0f\],
+.bg-\[\#0A0A0F\]\/80,
+.bg-\[\#0A0A0F\]\/60 {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* "Glassy" panel backgrounds → solid white */
+.bg-white\/\[0\.03\],
+.bg-white\/\[0\.04\],
+.bg-white\/\[0\.05\],
+.bg-white\/\[0\.06\],
+.bg-white\/\[0\.08\],
+.bg-white\/\[0\.10\],
+.bg-white\/5,
+.bg-white\/10 {
+  background-color: #ffffff !important;
+}
+
+/* Ultra-low opacity "inner tile" surfaces → faint slate tint so they're
+   visible inside a white parent card (visual hierarchy preserved). */
+.bg-white\/\[0\.02\] {
+  background-color: #F8F9FC !important;
+}
+
+.hover\:bg-white\/\[0\.05\]:hover,
+.hover\:bg-white\/\[0\.06\]:hover,
+.hover\:bg-white\/\[0\.08\]:hover,
+.hover\:bg-white\/5:hover,
+.hover\:bg-white\/10:hover {
+  background-color: #F4F5F9 !important;
+}
+
+/* White borders → light slate */
+.border-white\/\[0\.04\],
+.border-white\/\[0\.06\],
+.border-white\/\[0\.08\],
+.border-white\/\[0\.10\],
+.border-white\/5,
+.border-white\/10 {
+  border-color: #E8EAF0 !important;
+}
+.hover\:border-white\/\[0\.1\]:hover,
+.hover\:border-white\/\[0\.10\]:hover,
+.hover\:border-white\/10:hover {
+  border-color: #C4B5FD !important;
+}
+
+/* Text colors */
+.text-white { color: #0F172A !important; }
+.text-white\/20, .text-white\/30 { color: #94A3B8 !important; }
+.text-white\/40, .text-white\/50 { color: #64748B !important; }
+.text-white\/60, .text-white\/70 { color: #475569 !important; }
+.text-white\/80, .text-white\/90 { color: #334155 !important; }
+
+.placeholder\:text-white\/20::placeholder,
+.placeholder\:text-white\/30::placeholder,
+.placeholder\:text-white\/40::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Keep text WHITE inside vibrant gradient buttons & icon tiles */
+[class*="bg-gradient-to-"] .text-white,
+button[class*="bg-gradient-to-"] .text-white,
+.gradient-primary .text-white,
+.gradient-primary svg,
+[class*="from-purple-"][class*="to-pink-"] svg,
+[class*="from-pink-"][class*="to-purple-"] svg,
+[class*="from-cyan-"][class*="to-blue-"] svg,
+[class*="from-blue-"][class*="to-cyan-"] svg,
+[class*="from-emerald-"][class*="to-teal-"] svg,
+[class*="from-amber-"][class*="to-orange-"] svg,
+[class*="from-violet-"][class*="to-purple-"] svg,
+[class*="from-violet-"][class*="to-indigo-"] svg,
+[class*="from-red-"][class*="to-rose-"] svg,
+[class*="from-pink-"][class*="to-rose-"] svg {
+  color: #ffffff !important;
+}
+
+/* Gradient buttons themselves */
+.bg-gradient-to-r.text-white,
+.bg-gradient-to-br.text-white,
+.bg-gradient-to-l.text-white,
+.bg-gradient-to-bl.text-white,
+.bg-gradient-to-t.text-white,
+.bg-gradient-to-tr.text-white,
+.bg-gradient-to-tl.text-white,
+button.bg-gradient-to-r,
+button.bg-gradient-to-br {
+  color: #ffffff !important;
+}
+
+/* Soft shadows replace heavy dark shadows */
+.shadow-\[0_8px_32px_rgba\(0\,0\,0\,0\.3\)\] {
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+.hover\:shadow-\[0_8px_40px_rgba\(139\,92\,246\,0\.12\)\]:hover,
+.hover\:shadow-\[0_8px_40px_rgba\(139\,92\,246\,0\.15\)\]:hover {
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.10), 0 12px 28px rgba(124, 58, 237, 0.08) !important;
+}
+.shadow-2xl { box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.05) !important; }
+
+/* Soft tinted status pills */
+.bg-red-500\/10 { background-color: #FEE2E2 !important; }
+.bg-amber-500\/10 { background-color: #FEF3C7 !important; }
+.bg-emerald-500\/10 { background-color: #D1FAE5 !important; }
+.bg-cyan-500\/10 { background-color: #CFFAFE !important; }
+.bg-purple-500\/10 { background-color: #EDE9FE !important; }
+.bg-pink-500\/10 { background-color: #FCE7F3 !important; }
+.bg-blue-500\/10 { background-color: #DBEAFE !important; }
+
+.border-red-500\/20 { border-color: #FCA5A5 !important; }
+.border-amber-500\/20 { border-color: #FCD34D !important; }
+.border-emerald-500\/20 { border-color: #6EE7B7 !important; }
+.border-purple-500\/20 { border-color: #C4B5FD !important; }
+.border-pink-500\/20 { border-color: #F9A8D4 !important; }
+
+.text-red-300, .text-red-400 { color: #DC2626 !important; }
+.text-amber-300, .text-amber-400 { color: #D97706 !important; }
+.text-emerald-300, .text-emerald-400 { color: #059669 !important; }
+.text-cyan-300, .text-cyan-400 { color: #0891B2 !important; }
+.text-purple-300, .text-purple-400 { color: #7C3AED !important; }
+.text-pink-300, .text-pink-400 { color: #DB2777 !important; }
+
+/* Sidebar active pill — softer purple bg */
+.from-purple-500\/20 { --tw-gradient-from: rgba(124, 58, 237, 0.12) !important; }
+.to-pink-500\/10 { --tw-gradient-to: rgba(236, 72, 153, 0.06) !important; }
+
+/* Input default styling */
+input, textarea, select {
+  color: #0F172A;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   White-Theme Overhaul (spec 002) — hardened compatibility layer
+   Catches every remaining dark-token pattern not covered above so
+   the entire app — including floating surfaces, modals, popovers,
+   landing hero, sidebars — renders cleanly on a light background.
+   ─────────────────────────────────────────────────────────────── */
+
+/* Additional dark page backgrounds → transparent (body owns the bg) */
+.bg-\[\#08080f\],
+.bg-\[\#0b0b14\],
+.bg-\[\#0B0B14\],
+.bg-\[\#0a0a0f\]\/95,
+.bg-\[\#0a0a0f\]\/90,
+.bg-\[\#0a0a0f\]\/70,
+.bg-\[\#0a0a0f\]\/50 {
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+}
+
+/* Glassmorphism / ultra-low-opacity white panels not covered above */
+.bg-white\/\[0\.01\],
+.bg-white\/\[0\.015\],
+.bg-white\/\[0\.025\] {
+  background-color: #F8F9FC !important;
+}
+.bg-white\/\[0\.07\],
+.bg-white\/\[0\.09\],
+.bg-white\/15,
+.bg-white\/20,
+.bg-white\/30 {
+  background-color: #ffffff !important;
+}
+
+.hover\:bg-white\/\[0\.02\]:hover,
+.hover\:bg-white\/\[0\.03\]:hover,
+.hover\:bg-white\/\[0\.04\]:hover,
+.hover\:bg-white\/15:hover,
+.hover\:bg-white\/20:hover {
+  background-color: #F4F5F9 !important;
+}
+
+/* Additional border-white variants */
+.border-white\/\[0\.015\],
+.border-white\/\[0\.02\],
+.border-white\/\[0\.03\],
+.border-white\/15,
+.border-white\/20,
+.border-white\/30 {
+  border-color: #E8EAF0 !important;
+}
+.hover\:border-white\/\[0\.08\]:hover,
+.hover\:border-white\/\[0\.12\]:hover,
+.hover\:border-white\/20:hover,
+.hover\:border-white\/30:hover {
+  border-color: #C4B5FD !important;
+}
+
+/* Odd text-white opacity variants (15/25/35/45/85/95) */
+.text-white\/15 { color: #94A3B8 !important; }
+.text-white\/25 { color: #94A3B8 !important; }
+.text-white\/35 { color: #64748B !important; }
+.text-white\/45 { color: #64748B !important; }
+.text-white\/55 { color: #475569 !important; }
+.text-white\/65 { color: #475569 !important; }
+.text-white\/75 { color: #334155 !important; }
+.text-white\/85 { color: #334155 !important; }
+.text-white\/95 { color: #0F172A !important; }
+
+/* Re-color placeholder text on dark-themed inputs */
+.placeholder\:text-white\/10::placeholder,
+.placeholder\:text-white\/15::placeholder,
+.placeholder\:text-white\/20::placeholder,
+.placeholder\:text-white\/25::placeholder,
+.placeholder\:text-white\/30::placeholder,
+.placeholder\:text-white\/35::placeholder,
+.placeholder\:text-white\/40::placeholder,
+.placeholder\:text-white\/45::placeholder,
+.placeholder\:text-white\/50::placeholder { color: #94A3B8 !important; }
+
+/* Hover text-white/X states */
+.hover\:text-white\/40:hover,
+.hover\:text-white\/50:hover { color: #64748B !important; }
+.hover\:text-white\/60:hover,
+.hover\:text-white\/70:hover { color: #475569 !important; }
+.hover\:text-white\/80:hover,
+.hover\:text-white\/90:hover,
+.hover\:text-white:hover { color: #0F172A !important; }
+
+/* "ring-white" focus rings on dark → soft indigo on light */
+.ring-white\/10,
+.ring-white\/20,
+.ring-white\/30 { --tw-ring-color: rgba(124, 58, 237, 0.20) !important; }
+
+/* Decorative "from-white/X" / "to-white/X" gradient stops → invisible on light */
+.from-white\/5,
+.from-white\/10,
+.from-white\/15 { --tw-gradient-from: rgba(124, 58, 237, 0.04) !important; }
+.to-white\/5,
+.to-white\/10,
+.to-white\/15 { --tw-gradient-to: rgba(124, 58, 237, 0.00) !important; }
+
+/* Divide colors (table row dividers etc.) */
+.divide-white\/\[0\.04\] > * + *,
+.divide-white\/\[0\.06\] > * + *,
+.divide-white\/10 > * + * { border-color: #E8EAF0 !important; }
+
+/* Status pills on dark used these */
+.bg-purple-500\/15 { background-color: #EDE9FE !important; }
+.bg-purple-500\/20 { background-color: #DDD6FE !important; }
+.bg-pink-500\/15 { background-color: #FCE7F3 !important; }
+.bg-pink-500\/20 { background-color: #FBCFE8 !important; }
+.bg-cyan-500\/15 { background-color: #CFFAFE !important; }
+.bg-cyan-500\/20 { background-color: #A5F3FC !important; }
+.bg-amber-500\/15 { background-color: #FEF3C7 !important; }
+.bg-amber-500\/20 { background-color: #FDE68A !important; }
+.bg-emerald-500\/15 { background-color: #D1FAE5 !important; }
+.bg-emerald-500\/20 { background-color: #A7F3D0 !important; }
+.bg-red-500\/15 { background-color: #FEE2E2 !important; }
+.bg-red-500\/20 { background-color: #FECACA !important; }
+.bg-blue-500\/15 { background-color: #DBEAFE !important; }
+.bg-blue-500\/20 { background-color: #BFDBFE !important; }
+
+.border-purple-500\/30 { border-color: #C4B5FD !important; }
+.border-purple-500\/40 { border-color: #A78BFA !important; }
+.border-pink-500\/30 { border-color: #F9A8D4 !important; }
+.border-cyan-500\/30 { border-color: #67E8F9 !important; }
+.border-emerald-500\/30 { border-color: #6EE7B7 !important; }
+.border-amber-500\/30 { border-color: #FCD34D !important; }
+.border-red-500\/30 { border-color: #FCA5A5 !important; }
+
+/* Same-family lighter status text colors used on dark variants */
+.text-purple-200, .text-purple-300 { color: #6D28D9 !important; }
+.text-pink-200, .text-pink-300 { color: #BE185D !important; }
+.text-cyan-200, .text-cyan-300 { color: #0E7490 !important; }
+.text-emerald-200, .text-emerald-300 { color: #047857 !important; }
+.text-amber-200, .text-amber-300 { color: #B45309 !important; }
+.text-red-200, .text-red-300 { color: #B91C1C !important; }
+
+/* Inside a brand-gradient surface, keep text WHITE and high-contrast */
+[class*="bg-gradient-to-r"][class*="from-indigo"][class*="to-pink"] *,
+[class*="bg-gradient-to-r"][class*="from-purple"][class*="to-pink"] *,
+[class*="bg-gradient-to-r"][class*="from-indigo"][class*="via-"][class*="to-pink"] *,
+[class*="bg-gradient-to-r"][class*="from-violet"][class*="to-pink"] *,
+[class*="bg-gradient-to-r"][class*="from-purple-600"] *,
+[class*="bg-gradient-to-br"][class*="from-purple"][class*="to-pink"] * {
+  /* allow children that set their own color to win, but provide a sane default */
+  text-shadow: none;
+}
+
+/* Modal overlay should remain dark-translucent (this is correct behavior) */
+.bg-black\/40,
+.bg-black\/50,
+.bg-black\/60,
+.bg-black\/70 { background-color: rgba(15, 23, 42, 0.50) !important; backdrop-filter: blur(4px); }
+
+/* Backdrop-blur on light surfaces gets in the way; neutralize it for dark-glass tokens */
+.backdrop-blur-xl,
+.backdrop-blur-lg,
+.backdrop-blur-md {
+  backdrop-filter: none;
+}
+
+/* Native form controls — keep them in light mode */
+input, textarea, select {
+  color-scheme: light;
+}
+input[type="date"]::-webkit-calendar-picker-indicator { filter: none; opacity: 0.6; }
+
+/* Dark "decorative glow" radial backgrounds used on Landing hero — desaturate */
+.bg-purple-600\/10 { background-color: rgba(124, 58, 237, 0.08) !important; }
+.bg-cyan-600\/8 { background-color: rgba(6, 182, 212, 0.06) !important; }
+.bg-pink-600\/6 { background-color: rgba(236, 72, 153, 0.05) !important; }

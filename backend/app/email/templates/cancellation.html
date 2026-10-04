@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order Cancellation</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f2937;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f3f4f6;">
+<tr><td align="center" style="padding:32px 16px;">
+
+<!-- Main container -->
+<table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+
+<!-- Header -->
+<tr>
+<td bgcolor="#dc2626" style="background-color:#dc2626;background:linear-gradient(135deg,#dc2626 0%,#ef4444 100%);padding:32px 36px;">
+  <p style="margin:0 0 4px;color:rgba(255,255,255,0.75);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Order Cancellation</p>
+  <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.4px;">Purchase Order Cancelled</h1>
+  <p style="margin:6px 0 0;color:rgba(255,255,255,0.85);font-size:13px;">{{ company_name }}</p>
+</td>
+</tr>
+
+<!-- Greeting -->
+<tr>
+<td style="padding:28px 36px 8px;">
+  <p style="margin:0 0 14px;color:#111827;font-size:16px;line-height:1.6;">{{ greeting }}</p>
+  <p style="margin:0;color:#4b5563;font-size:15px;line-height:1.7;">We are writing to inform you that the following purchase order has been <strong style="color:#dc2626;">cancelled</strong>.</p>
+</td>
+</tr>
+
+<!-- Order reference -->
+<tr>
+<td style="padding:16px 36px 0;">
+  <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px 20px;">
+    <p style="margin:0 0 4px;color:#991b1b;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Order Reference</p>
+    <p style="margin:0;color:#dc2626;font-size:16px;font-weight:700;font-family:'SF Mono',Consolas,monospace;">{{ order_id }}</p>
+  </div>
+</td>
+</tr>
+
+<!-- Reason -->
+{% if reason %}
+<tr>
+<td style="padding:16px 36px 0;">
+  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;">
+    <p style="margin:0 0 6px;color:#6366f1;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Reason</p>
+    <p style="margin:0;color:#374151;font-size:14px;line-height:1.6;">{{ reason }}</p>
+  </div>
+</td>
+</tr>
+{% endif %}
+
+<!-- Items Table -->
+{% if items %}
+<tr>
+<td style="padding:24px 36px 0;">
+  <p style="margin:0 0 12px;color:#6366f1;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Cancelled Items</p>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">
+  <tr style="background:#f9fafb;">
+    <th style="padding:12px 16px;text-align:left;color:#374151;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e5e7eb;">Item</th>
+    <th style="padding:12px 16px;text-align:center;color:#374151;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e5e7eb;">Qty</th>
+    <th style="padding:12px 16px;text-align:right;color:#374151;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #e5e7eb;">Cost</th>
+  </tr>
+  {% for item in items %}
+  <tr>
+    <td style="padding:14px 16px;color:#111827;font-size:14px;border-bottom:1px solid #f3f4f6;font-weight:500;">{{ item.name }}{% if item.sku %}<br><span style="color:#9ca3af;font-size:12px;font-weight:400;font-family:'SF Mono',Consolas,monospace;">SKU: {{ item.sku }}</span>{% endif %}</td>
+    <td style="padding:14px 16px;color:#111827;font-size:14px;text-align:center;border-bottom:1px solid #f3f4f6;">{{ item.quantity }}</td>
+    <td style="padding:14px 16px;color:#111827;font-size:14px;text-align:right;font-weight:600;border-bottom:1px solid #f3f4f6;">${{ "%.2f"|format(item.unit_cost * item.quantity) }}</td>
+  </tr>
+  {% endfor %}
+  <tr style="background:#fef2f2;">
+    <td colspan="2" style="padding:16px;color:#991b1b;font-size:14px;font-weight:600;text-align:right;">Cancelled Total</td>
+    <td style="padding:16px;color:#dc2626;font-size:20px;font-weight:700;text-align:right;">${{ "%.2f"|format(total_cost) }}</td>
+  </tr>
+  </table>
+</td>
+</tr>
+{% endif %}
+
+<!-- Closing -->
+<tr>
+<td style="padding:24px 36px;">
+  <p style="margin:0 0 8px;color:#4b5563;font-size:14px;line-height:1.7;">Please disregard the original purchase order. We apologize for any inconvenience this may have caused.</p>
+  <p style="margin:20px 0 0;color:#374151;font-size:14px;line-height:1.6;">Best regards,<br><strong style="color:#111827;">{{ company_name }} Procurement Team</strong></p>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:18px 36px;text-align:center;">
+  <p style="margin:0;color:#6b7280;font-size:12px;">This is an automated cancellation notice from <strong style="color:#4f46e5;">{{ company_name }}</strong>.</p>
+</td>
+</tr>
+
+</table>
+
+<table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;margin-top:16px;">
+<tr><td style="padding:0 8px;text-align:center;color:#9ca3af;font-size:11px;">© {{ company_name }} · Automated Procurement Platform</td></tr>
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>
